@@ -23,6 +23,20 @@ namespace netRestApiRTest.Controllers
             return Ok(lst);
         }
 
+        [HttpGet("{id}")]
+        public IActionResult GetBlog(int id)
+        {
+            BlogDataModel? item = _db.Blogs.FirstOrDefault(ea => ea.Blog_Id == id);
+
+            if (item == null)
+            {
+                return NotFound("No data Not found.");
+            }
+
+            return Ok(item);
+
+        }
+
         [HttpPost]
         public IActionResult CreateBlogs(BlogDataModel blog)
         {
