@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using netRestApi;
+using netRestApi.BlogResponseModel;
 using netRestApi.Models;
 
 namespace netRestApiRTest.Controllers
@@ -16,11 +17,29 @@ namespace netRestApiRTest.Controllers
             _db = new AppDbContext();
         }
 
-        [HttpGet]
-        public IActionResult GetBlogs()
+        [HttpGet("{pageNo}/{pageSize}")]
+        [HttpGet("pageNo/{pageNo}/pageSize/{pageSize}")]
+
+        public IActionResult GetBlogs(int pageNo, int pageSize)
         {
-            List<BlogDataModel> lst = _db.Blogs.ToList();
-            return Ok(lst);
+            List<BlogDataModel> lst = _db.Blogs
+            // .OrderDescending()
+            .Skip((pageNo - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+            int rowCount = _db.Blogs.Count();
+
+            int pageCount = rowCount / pageSize;
+
+            BlogResponseModel resBlog = new BlogResponseModel();
+
+            resBlog.pageNo = pageNo;
+            resBlog.pageSize = pageSize;
+            resBlog.pageCount = pageCount;
+            resBlog.Data = lst;
+            resBlog.IsEndOfPage = pageNo == pageCount;
+            return Ok(resBlog);
         }
 
         [HttpGet("{id}")]
